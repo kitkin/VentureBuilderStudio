@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venture Builder Studio — Projects Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,Arial,Helvetica,sans-serif;font-size:17px;line-height:1.6;color:#222;background:#f0f2f5}
+
+/* ===== TOP HEADER ===== */
+.top-bar{background:#1a1a2e;color:#fff;padding:18px 24px;display:flex;align-items:center;gap:16px}
+.top-bar h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.top-bar .goal{font-size:14px;background:rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;margin-left:auto;white-space:nowrap}
+
+/* ===== MAIN TABS ===== */
+.tabs{display:flex;background:#16213e;padding:0 16px;gap:2px;overflow-x:auto}
+.tab-btn{padding:14px 22px;font-size:15px;font-weight:600;color:rgba(255,255,255,.6);background:transparent;border:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.2s}
+.tab-btn:hover{color:#fff}
+.tab-btn.active{color:#fff;border-bottom-color:#4fc3f7}
+.tab-content{display:none;padding:20px;max-width:1100px;margin:0 auto}
+.tab-content.active{display:block}
+
+/* ===== SUB TABS ===== */
+.sub-tabs{display:flex;gap:2px;margin-bottom:20px;flex-wrap:wrap}
+.sub-btn{padding:10px 18px;font-size:14px;font-weight:600;color:#555;background:#e0e0e0;border:none;cursor:pointer;border-radius:8px 8px 0 0;transition:.2s}
+.sub-btn:hover{background:#ccc}
+.sub-btn.active{background:#fff;color:#1a1a2e;box-shadow:0 -2px 6px rgba(0,0,0,.08)}
+.sub-content{display:none;background:#fff;border-radius:0 8px 8px 8px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.sub-content.active{display:block}
+
+/* ===== ACCORDION ===== */
+.acc{margin-bottom:12px;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.acc-head{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;background:#fff;cursor:pointer;border:none;width:100%;text-align:left;font-size:17px;transition:.15s}
+.acc-head:hover{background:#f8f9fa}
+.acc-head .num{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.acc-head .num.n{background:#0d6efd}
+.acc-head .num.s{background:#198754}
+.acc-head .right{flex:1}
+.acc-head .name{font-weight:700;font-size:18px;color:#111;margin-bottom:2px}
+.acc-head .pitch{font-size:15px;color:#444;font-weight:400}
+.acc-head .arrow{font-size:20px;color:#999;transition:.3s;margin-left:8px;flex-shrink:0;margin-top:6px}
+.acc.open .acc-head .arrow{transform:rotate(180deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease;background:#fff}
+.acc-body-inner{padding:0 20px 20px 64px}
+
+/* ===== DETAIL CARDS ===== */
+.d-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:16px;margin-bottom:4px}
+.d-label:first-child{margin-top:0}
+.d-text{font-size:16px;color:#333}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+@media(max-width:700px){.d-grid{grid-template-columns:1fr}}
+.d-box{background:#f8f9fa;border-radius:8px;padding:14px}
+.d-box b{color:#111}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:12px;font-weight:600;margin-right:6px;margin-bottom:4px}
+.tag-b2c{background:#e3f2fd;color:#0d47a1}
+.tag-b2b{background:#e8f5e9;color:#1b5e20}
+.tag-n{background:#cce5ff;color:#004085}
+.tag-s{background:#d4edda;color:#155724}
+.risk-text{color:#c62828;font-weight:600}
+
+/* ===== PHASE TRACKER ===== */
+.phases{margin-top:16px}
+.phase{margin-bottom:16px;border-left:4px solid #e0e0e0;padding-left:20px;position:relative}
+.phase::before{content:'';position:absolute;left:-9px;top:4px;width:14px;height:14px;border-radius:50%;background:#e0e0e0;border:2px solid #fff;box-shadow:0 0 0 2px #e0e0e0}
+.phase.done{border-left-color:#43a047}
+.phase.done::before{background:#43a047;box-shadow:0 0 0 2px #43a047}
+.phase.current{border-left-color:#fb8c00}
+.phase.current::before{background:#fb8c00;box-shadow:0 0 0 2px #fb8c00}
+.phase.future{border-left-color:#90a4ae}
+.phase.future::before{background:#90a4ae;box-shadow:0 0 0 2px #90a4ae}
+.phase h3{font-size:16px;margin-bottom:4px}
+.phase p{font-size:15px;color:#555}
+.phase .result{font-size:14px;background:#f5f5f5;padding:8px 12px;border-radius:6px;margin-top:6px;color:#333}
+.phase .result b{color:#111}
+
+.status-badge{display:inline-block;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:700;margin-left:8px}
+.status-badge.not-started{background:#eee;color:#666}
+.status-badge.in-progress{background:#fff3e0;color:#e65100}
+.status-badge.done{background:#e8f5e9;color:#2e7d32}
+
+/* ===== CHANNEL TABLE ===== */
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:8px}
+th{background:#f5f5f5;text-align:left;padding:10px 12px;font-size:13px;text-transform:uppercase;color:#666;letter-spacing:.5px}
+td{padding:10px 12px;border-bottom:1px solid #eee}
+tr:last-child td{border-bottom:none}
+
+/* ===== MISC ===== */
+.section-title{font-size:20px;font-weight:700;margin-bottom:16px;color:#111}
+.note{font-size:14px;color:#888;margin-top:20px;padding:12px 16px;background:#fffde7;border-radius:8px;border-left:4px solid #fbc02d}
+hr{border:none;border-top:1px solid #e0e0e0;margin:20px 0}
+a{color:#0d6efd}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="top-bar">
+  <h1>Venture Builder Studio</h1>
+  <span class="goal">Goal: 150 leads per project via free traffic</span>
+</div>
+
+<!-- ===== MAIN TABS ===== -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="openTab(event,'tab1')">All Ideas</button>
+  <button class="tab-btn" onclick="openTab(event,'tab2')">Deep Dive</button>
+  <button class="tab-btn" onclick="openTab(event,'tab3')">Work Plan</button>
+</div>
+
+<!-- =========================================================== -->
+<!-- TAB 1: ALL IDEAS (ACCORDIONS)                                -->
+<!-- =========================================================== -->
+<div id="tab1" class="tab-content active">
+
+<p style="margin-bottom:16px;color:#555">14 project ideas. Click any card to see details. High Concept Pitch is visible right away.</p>
+
+<!-- ===== NADEZHDA'S IDEAS ===== -->
+<p class="section-title" style="margin-top:8px"><span class="tag tag-n">Nadezhda</span> 7 ideas</p>
+
+<!-- N1 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N1</span>
+    <div class="right">
+      <div class="name">SoulMate AI</div>
+      <div class="pitch">Replika that actually knows your life from social media and can do real things — send flowers, remind you about events. Chat + calls, 24/7.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">60%+ adults feel lonely. They want emotional support 24/7 but won't go to therapy. Current AI friends are just chat — they don't know your life and can't do anything real.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Young people 18-35, alone in a big city, working remote. Lonely but not ready for a therapist.</div>
+      <div class="d-box"><b>Price:</b> $9.99-19.99/month. Free: 10 messages/day.</div>
+      <div class="d-box"><b>Competitors:</b> Replika, Character.AI, Nomi, Kindroid, Talkie</div>
+      <div class="d-box"><b>Market:</b> $32M (2025) → ~$972B by 2035</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Lots of competitors. Mental health regulations. Ethical concerns about dependency.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">2-3 months. Chat with memory + avatar. Social media and real actions = harder, needs partnerships.</div>
+  </div></div>
+</div>
+
+<!-- N2 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N2</span>
+    <div class="right">
+      <div class="name">RoomCraft AI</div>
+      <div class="pitch">AI shows your room with real furniture from real local shops. Any budget. 10 minutes instead of $2,000 and 3 days at a designer.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Interior designer costs $500-2,000 and takes days. AI tools make pretty pictures but furniture is fake — you can't buy it from local stores.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Interior designers (freelance/small studio) and homeowners who want to see a room before buying.</div>
+      <div class="d-box"><b>Price:</b> $9.99-29/month. 1 free room to try.</div>
+      <div class="d-box"><b>Competitors:</b> ReimagineHome, Spacely, Havenly, IKEA Kreativ</div>
+      <div class="d-box"><b>Market:</b> AI interior design $3B+</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Need deals with furniture shops. AI picture quality may not be enough for pros.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">2-3 months. AI render + furniture matching. Shop integration is a separate step.</div>
+  </div></div>
+</div>
+
+<!-- N3 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N3</span>
+    <div class="right">
+      <div class="name">NicheMarketer AI</div>
+      <div class="pitch">Jasper for one industry. AI marketer that already speaks the language of dentists, hotels, or logistics — posts, ads, strategy for your niche.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Small business in narrow niches can't find a marketer who gets their industry. Jasper and Copy.ai give generic text that doesn't fit.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Small business owner or marketer in a narrow niche (e.g. one dental clinic, 2-5 chairs).</div>
+      <div class="d-box"><b>Price:</b> $29/month. Compare: Jasper $39, agency $1,000-3,000.</div>
+      <div class="d-box"><b>Competitors:</b> Jasper, Copy.ai, Writesonic, Narrato (all generic)</div>
+      <div class="d-box"><b>Market:</b> AI marketing $78B+ by 2030. No vertical players.</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Need deep expertise per industry. If we try too many at once — we spread thin.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">1-2 months for one industry (e.g. dentistry). LLM + industry knowledge base + prompts.</div>
+  </div></div>
+</div>
+
+<!-- N4 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N4</span>
+    <div class="right">
+      <div class="name">FreelanceFlow AI</div>
+      <div class="pitch">AI writes proposals, contracts, invoices for freelancers. Auto follow-up. Get back 10-15 hours per week of paid work.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Freelancers spend 30-40% of time on paperwork: proposals, contracts, invoices. That's 10-15 hours a week with zero income.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Freelance designer/developer/writer with 5-15 clients. Drowning in admin work.</div>
+      <div class="d-box"><b>Price:</b> $19/mo (solo) or $39/mo (pro, unlimited).</div>
+      <div class="d-box"><b>Competitors:</b> Bonsai ($9-19), HoneyBook ($19-79), Plutio, PandaDoc (none AI-first)</div>
+      <div class="d-box"><b>Market:</b> Freelancer tools $14.39B+ by 2030</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Freelancers care about price. Must cover many use cases from day one.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">2-3 months. AI proposals, contracts, invoices. LLM + document templates.</div>
+  </div></div>
+</div>
+
+<!-- N5 — REVIEW AI (deep dive available) -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N5</span>
+    <div class="right">
+      <div class="name">ReviewHero AI <span class="status-badge in-progress">DEEP DIVE ↓</span></div>
+      <div class="pitch">Birdeye for $29/month. Watch reviews on all sites. AI writes replies in minutes. See what's wrong. Fix reputation. For small business with 1-5 locations.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Small business gets reviews on 5+ sites (Google, Yelp). No time to reply. One bad review without answer = lose ~30 customers. Birdeye/Podium cost $300-400/month. Too much.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Owner of cafe, salon, dentist, garage. 1-5 locations. Gets 5-20 reviews/month.</div>
+      <div class="d-box"><b>Price:</b> $29/mo (1 location), $49/mo (up to 3).</div>
+      <div class="d-box"><b>Competitors:</b> Birdeye ($299-449), Podium (~$399), ReviewTrackers ($89), Reviewly.ai</div>
+      <div class="d-box"><b>Market:</b> Reputation management $17B+ by 2032. Affordable segment ($20-50) is empty.</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Big players are strong. Small business may not want to pay for software. Need Google/Yelp APIs.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">1-2 months. Google Business API + AI replies + dashboard.</div>
+    <div class="note">This idea has a <b>Deep Dive</b> — see Tab 2 for full research from Nadezhda.</div>
+  </div></div>
+</div>
+
+<!-- N6 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N6</span>
+    <div class="right">
+      <div class="name">InterviewAce AI</div>
+      <div class="pitch">Get ready for a job interview in one evening. AI reads the job posting, makes questions, does practice interview, gives feedback. $15/month vs $300/session coach.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">People go to 5-10 interviews per job. They don't know the questions. They panic. A career coach costs $100-300 per session. Free resources are generic.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Person 25-40 looking for a job. Has 3-5 interviews. Nervous and unprepared.</div>
+      <div class="d-box"><b>Price:</b> $4.99 one-time (1 interview) or $14.99/month (unlimited).</div>
+      <div class="d-box"><b>Competitors:</b> Final Round AI ($149/mo), Interview Sidekick (~$39), Pramp (~$150/yr), Huru</div>
+      <div class="d-box"><b>Market:</b> Interview prep $3B+ by 2030</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Fast-growing market. Many players. Must be different from just using ChatGPT.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">1-2 months. Job link → questions → mock interview (chat/voice) → feedback. LLM + speech-to-text.</div>
+  </div></div>
+</div>
+
+<!-- N7 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num n">N7</span>
+    <div class="right">
+      <div class="name">MedCabinet AI</div>
+      <div class="pitch">Scan your medicines at home. AI catalogs them, tracks expiry, tells you what to take when sick, warns about bad combos, reminds to restock. Family sharing.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Home has 15-30 medicines. People forget what's for what. 30%+ are expired. They don't know about bad combinations. Kid sick at night = 30 min panic searching boxes.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Parent 30-45 with family. 20+ medicines at home, half expired. Kid sick at night — what to give?</div>
+      <div class="d-box"><b>Price:</b> Free up to 20 medicines. $4.99/month for unlimited + AI advice + family.</div>
+      <div class="d-box"><b>Competitors:</b> Medisafe (only reminders), MedBay (only expiry), Smart Pill ID, GoodRx</div>
+      <div class="d-box"><b>Market:</b> Digital health / medication mgmt $12.7B by 2030. Full "AI medicine cabinet" doesn't exist.</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Small market. Target audience is not early adopters.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">2-3 months. Barcode scanner, catalog, expiry tracking, basic recommendations. Drug database API + LLM.</div>
+  </div></div>
+</div>
+
+<!-- ===== SEBASTIAN'S IDEAS ===== -->
+<p class="section-title" style="margin-top:32px"><span class="tag tag-s">Sebastian</span> 7 ideas</p>
+
+<!-- S1 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S1</span>
+    <div class="right">
+      <div class="name">GrantPilot AI</div>
+      <div class="pitch">AI writes grant applications for your startup. You give data about your company — it fills the forms. Saves weeks of paperwork. $29/month vs Instrumentl $179.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Founders spend weeks on grant paperwork instead of building product. Freelance grant writers are expensive. Rejection is still likely.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Startup founder. Needs grants. No time for forms and bureaucracy.</div>
+      <div class="d-box"><b>Price:</b> ~$29/month (Instrumentl is $179/month).</div>
+      <div class="d-box"><b>Competitors:</b> Granted AI, Grantboost, Grantable, Instrumentl, Candor</div>
+      <div class="d-box"><b>Skill fit:</b> 50-70%</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Grant rules change all the time. Long sales cycle — hard to convince quickly.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">Medium difficulty. Need a grant database and deep understanding of formats. Better with a partner who knows grants.</div>
+  </div></div>
+</div>
+
+<!-- S2 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S2</span>
+    <div class="right">
+      <div class="name">LeadVerify AI</div>
+      <div class="pitch">AI bot calls your leads, asks smart questions, checks if they're real. Returns tagged profiles to your CRM. Sales team only sees good leads. No more wasting hours on junk.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">80% of leads are junk. Sales spend hours calling. Budget burns on bad leads. SMS verification doesn't show quality or intent.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Companies with lots of leads. Sales team wastes time on bad ones.</div>
+      <div class="d-box"><b>Price:</b> B2B. Per-lead or subscription.</div>
+      <div class="d-box"><b>Competitors:</b> Voice bots from big CRM (expensive + complex), SMS services (no quality), basic AI callers</div>
+      <div class="d-box"><b>Skill fit:</b> 80-90%</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Phone tech is tricky. Legal risks: recording calls, getting consent.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">~1 month. Twilio API + basic AI model for dialogue. High feasibility.</div>
+  </div></div>
+</div>
+
+<!-- S3 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S3</span>
+    <div class="right">
+      <div class="name">AdScore AI</div>
+      <div class="pitch">Before you spend money on ads: AI looks at your creatives and predicts CTR and ROI. Tells you what to fix. So you don't burn budget on bad ads.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">You can't know if ad creatives are good before launch. Money on tests goes to waste. Results are random.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Marketers who run ads. Want to test creatives before spending real money.</div>
+      <div class="d-box"><b>Price:</b> Subscription (TBD).</div>
+      <div class="d-box"><b>Competitors:</b> Adverity (data integration), Smartly.io (ad buying), Funnel.io (post-launch analytics). No direct creative predictor.</div>
+      <div class="d-box"><b>Skill fit:</b> 80%</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Meta API changes often. Prediction quality depends on training data — hard to get enough.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">High feasibility technically (Facebook Marketing API, CLIP). Hard part: collecting enough data to train good predictions.</div>
+  </div></div>
+</div>
+
+<!-- S4 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S4</span>
+    <div class="right">
+      <div class="name">DramaCut AI</div>
+      <div class="pitch">60-second vertical dramas for Reels/TikTok. Give a topic — AI makes script, voiceover, edit. Full video, no crew needed. $19/month.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Viral short video needs a videographer, actors, editor. For small business, that's slow and expensive.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> SMM manager or blogger. Wants short drama content. No budget for a video team.</div>
+      <div class="d-box"><b>Price:</b> ~$19/month.</div>
+      <div class="d-box"><b>Competitors:</b> Invideo AI, Synthesia, Pictory (none do full "drama" end-to-end)</div>
+      <div class="d-box"><b>Skill fit:</b> 30-40%</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Quality of generated script, voice, and video must be very good — or people leave.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">Medium. Need AI for script + voice + editing. Open-source solutions exist but need integration.</div>
+  </div></div>
+</div>
+
+<!-- S5 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S5</span>
+    <div class="right">
+      <div class="name">FinScore AI</div>
+      <div class="pitch">Duolingo for credit score. Game-like app that shows your score AND gives step-by-step plan to improve it. Track progress like fitness goals.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">Credit history is bad. Banks say no. Payday loans are expensive. No simple app tells you HOW to fix it step by step.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Person with bad credit. Wants to fix it. Doesn't know how. Needs simple steps.</div>
+      <div class="d-box"><b>Price:</b> Freemium (B2C).</div>
+      <div class="d-box"><b>Competitors:</b> RiskSeal, Zest AI, CreditVidya (all B2B enterprise, $499+/month). No B2C "improvement plan" app.</div>
+      <div class="d-box"><b>Skill fit:</b> 90%</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Credit bureaus (Equifax, Experian) don't give API to small players. Need licenses and checks. Big barrier.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">1.5-2 months for game logic + AI advisor. But getting data access is the real blocker.</div>
+  </div></div>
+</div>
+
+<!-- S6 -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S6</span>
+    <div class="right">
+      <div class="name">LearnLingua AI</div>
+      <div class="pitch">Speaking club with AI avatars. Practice English, business talks, exam prep — without fear, without waiting for a tutor. $12.99/month, unlimited practice.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">People are afraid to speak. Tutors cost a lot. In groups it's slow and uncomfortable. No place to practice under pressure at your own pace.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Language learner who wants to speak. Doesn't want to pay a tutor or wait in a group.</div>
+      <div class="d-box"><b>Price:</b> ~$12.99/month. One free dialog to try.</div>
+      <div class="d-box"><b>Competitors:</b> Duolingo Max (500M users, adding AI role-play), Talkpal, Lingoda (real people)</div>
+      <div class="d-box"><b>Skill fit:</b> 60-70%</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Duolingo is already here and massive. Need a clear niche (business, exams) or much better dialog quality.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">Medium. Speech synthesis and NLP APIs exist, but dialog quality is the key risk.</div>
+  </div></div>
+</div>
+
+<!-- S7 — INFLUENCER AI (deep dive available) -->
+<div class="acc" onclick="toggleAcc(this)">
+  <div class="acc-head">
+    <span class="num s">S7</span>
+    <div class="right">
+      <div class="name">InfluencerAI <span class="status-badge in-progress">DEEP DIVE ↓</span></div>
+      <div class="pitch">Find the right influencers in 60 seconds. Enter niche + budget + audience → get scored list with fake detection, audience quality, brand safety. $8 per report, not $299/month.</div>
+    </div>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="acc-body"><div class="acc-body-inner">
+    <div class="d-label">Problem</div>
+    <div class="d-text">30% of marketers say finding influencers is their #1 problem. 25% of influencers bought fake followers. Marketers spend weeks searching and still waste budget on dead audiences. HypeAuditor costs $299/month.</div>
+    <div class="d-grid">
+      <div class="d-box"><b>Who uses it:</b> Freelance SMM (3-5 clients), small agencies, brands launching campaigns, solo startup marketers.</div>
+      <div class="d-box"><b>Price:</b> $8-10 per report (one-time) or $29-49/month.</div>
+      <div class="d-box"><b>Competitors:</b> HypeAuditor ($299), Modash ($199), Upfluence ($2K), CreatorIQ ($35-60K/yr)</div>
+      <div class="d-box"><b>Market:</b> Influencer marketing $32.55B (2025) → $40.51B (2026). 6,939 platforms. SMB segment growing 20.4% CAGR.</div>
+    </div>
+    <div class="d-label">Risk</div>
+    <div class="d-text risk-text">Instagram/TikTok APIs keep getting stricter. What works today may break tomorrow.</div>
+    <div class="d-label">MVP</div>
+    <div class="d-text">2-3 weeks. Apify APIs + OpenAI/Claude + Stripe. Margin ~84% at $8/report. Skill fit: 90%.</div>
+    <div class="note">This idea has a <b>Deep Dive</b> — see Tab 2 for full research from Sebastian.</div>
+  </div></div>
+</div>
+
+</div><!-- /tab1 -->
+
+
+<!-- =========================================================== -->
+<!-- TAB 2: DEEP DIVE (SUB-TABS)                                 -->
+<!-- =========================================================== -->
+<div id="tab2" class="tab-content">
+
+<p style="margin-bottom:16px;color:#555">Detailed research on projects that were deeply analyzed. Click tabs below.</p>
+
+<div class="sub-tabs">
+  <button class="sub-btn active" onclick="openSub(event,'sub-review')">ReviewHero AI</button>
+  <button class="sub-btn" onclick="openSub(event,'sub-influencer')">InfluencerAI</button>
+</div>
+
+<!-- ===== SUB: REVIEW HERO ===== -->
+<div id="sub-review" class="sub-content active">
+
+<h2 style="margin-bottom:4px">ReviewHero AI</h2>
+<p style="color:#666;margin-bottom:20px">AI review manager for small business. Researched by Nadezhda.</p>
+
+<div class="d-label">One-liner</div>
+<div class="d-text" style="font-size:18px;font-weight:600">Birdeye for $29/month — AI monitors reviews, writes replies, shows what to fix. For cafes, salons, dentists with 1-5 locations. USA market.</div>
+
+<hr>
+<div class="d-label">Target Audience</div>
+<div class="d-grid">
+  <div class="d-box"><b>Who:</b> Small business owners with 1-5 locations</div>
+  <div class="d-box"><b>Where:</b> USA</div>
+  <div class="d-box"><b>Types:</b> Restaurants, dental clinics, beauty salons, auto repair, vet clinics</div>
+  <div class="d-box"><b>Price:</b> $29/mo (1 loc), $49/mo (up to 3)</div>
+</div>
+
+<hr>
+<div class="d-label">How We Get 150 Leads (Free Traffic)</div>
+<table>
+  <tr><th>Channel</th><th>Volume</th><th>Conversion</th><th>Expected Leads</th><th>How</th></tr>
+  <tr><td><b>Email</b></td><td>4,000 emails</td><td>2%</td><td>80</td><td>Find businesses with bad reviews and no replies. Send personal email about their specific problem.</td></tr>
+  <tr><td><b>Reddit</b></td><td>10 posts / comments</td><td>3 leads each</td><td>30</td><td>Week 1: only comment on posts where people complain about reviews. Give helpful tips. Build karma. Then post. Or buy account and post right away.</td></tr>
+  <tr><td><b>Product Hunt</b></td><td>1 listing</td><td>—</td><td>20</td><td>Coming Soon page.</td></tr>
+  <tr><td><b>Quora</b></td><td>15 answers</td><td>—</td><td>20</td><td>Detailed, useful answer. Mention product at end as one solution. Answers get indexed by Google = traffic for months.</td></tr>
+  <tr><td colspan="3" style="font-weight:700;text-align:right">Total:</td><td style="font-weight:700">150</td><td></td></tr>
+</table>
+
+<hr>
+<div class="d-label">Triggers — When Someone Is Ready to Buy</div>
+<table>
+  <tr><td>Got a negative review</td></tr>
+  <tr><td>Rating dropped below 4.0</td></tr>
+  <tr><td>Competitor has more good reviews</td></tr>
+  <tr><td>Fewer orders lately</td></tr>
+  <tr><td>Customer said: "I almost went to your competitor because of reviews"</td></tr>
+  <tr><td>Friends told them about bad reviews</td></tr>
+  <tr><td>Opening a new location</td></tr>
+  <tr><td>Busy season coming</td></tr>
+  <tr><td>Read an article about how reviews matter</td></tr>
+</table>
+
+<hr>
+<div class="d-label">Competitors & Pricing</div>
+<div class="d-grid">
+  <div class="d-box"><b>Birdeye:</b> $299-449/month (too expensive for SMB)</div>
+  <div class="d-box"><b>Podium:</b> ~$399/month</div>
+  <div class="d-box"><b>ReviewTrackers:</b> $89/location</div>
+  <div class="d-box"><b>Reviewly.ai:</b> affordable but limited</div>
+</div>
+<p style="margin-top:12px"><b>Our advantage:</b> $29/month with AI-powered replies and sentiment analysis. The $20-50/month segment is almost empty.</p>
+
+<hr>
+<div class="d-label">Lead Magnet</div>
+<div class="d-text">14-day free trial <b>or</b> free analysis of your last 10 reviews (with improvement tips).</div>
+
+</div><!-- /sub-review -->
+
+<!-- ===== SUB: INFLUENCER AI ===== -->
+<div id="sub-influencer" class="sub-content">
+
+<h2 style="margin-bottom:4px">InfluencerAI</h2>
+<p style="color:#666;margin-bottom:20px">Influencer search + scoring + verification for SMBs. Researched by Sebastian.</p>
+
+<div class="d-label">One-liner</div>
+<div class="d-text" style="font-size:18px;font-weight:600">Find niche influencers + verify their audience. 60 seconds. $8 per report. Not $299/month. The search engine for micro-influencers that doesn't exist yet.</div>
+
+<hr>
+<div class="d-label">Market</div>
+<div class="d-grid">
+  <div class="d-box"><b>Size:</b> $32.55B (2025) → $40.51B (2026). Growth: 30%+/year.</div>
+  <div class="d-box"><b>Platforms:</b> 6,939 exist, but most are for big companies.</div>
+  <div class="d-box"><b>SMB segment:</b> Growing fastest (20.4% CAGR). Almost no affordable tools.</div>
+  <div class="d-box"><b>Biggest chunk:</b> Search & Discovery = 35% of all platforms. Largest piece of the pie.</div>
+</div>
+
+<hr>
+<div class="d-label">The Gap</div>
+<div class="d-text">No platform combines: <b>search by niche/budget/audience</b> + <b>scoring & verification</b> + <b>SMB price ($5-15 per search, no subscription)</b>. Nobody fills this gap.</div>
+
+<hr>
+<div class="d-label">Who Buys</div>
+<table>
+  <tr><th>Buyer</th><th>Situation</th></tr>
+  <tr><td>Freelancer / SMM</td><td>Manages 3-5 clients. Searches influencers by hand every time.</td></tr>
+  <tr><td>Small agency</td><td>Needs to pitch a list of 20 influencers to client. Can't spend $2,400/year for one request.</td></tr>
+  <tr><td>Brand</td><td>Wants to launch a campaign. Doesn't know where to start. Afraid to waste budget.</td></tr>
+  <tr><td>Solo startup marketer</td><td>Does everything alone. $200/month is already too much.</td></tr>
+</table>
+
+<hr>
+<div class="d-label">Main Trigger</div>
+<div class="d-text" style="font-size:18px;font-weight:600;color:#c62828">Opened competitor's pricing page → saw $299/month → got angry → searching for a cheaper alternative → finds us.</div>
+
+<hr>
+<div class="d-label">Aha-Moment</div>
+<div class="d-text" style="font-size:18px">"I typed <b>fitness + women 25-34 + Russia</b> and in <b>60 seconds</b> got a list of 50 influencers with real analytics." That used to take 3 days of manual search.</div>
+
+<hr>
+<div class="d-label">Objections</div>
+<table>
+  <tr><th>They say</th><th>We say</th></tr>
+  <tr><td>"I search hashtags on Instagram myself"</td><td>OK, try it. You'll be back.</td></tr>
+  <tr><td>"Not enough data on small influencers"</td><td>That's exactly what we solve with Apify API.</td></tr>
+  <tr><td>"Too expensive"</td><td>$8 per report. Cheaper than a fancy coffee.</td></tr>
+</table>
+
+<hr>
+<div class="d-label">Competitors</div>
+<div class="d-grid">
+  <div class="d-box"><b>Enterprise (not us):</b> HypeAuditor $299+, Modash $199+, Upfluence $2K+, CreatorIQ $35-60K/yr. Annual contracts. For big brands.</div>
+  <div class="d-box"><b>Budget (partly us):</b> Heepsy $49 (weak analytics), Collabstr (marketplace, not search), Phlanx, TrendHero (basic metrics, no niche search).</div>
+</div>
+
+<hr>
+<div class="d-label">Key Numbers</div>
+<table>
+  <tr><td>Only 37.2% of brands do niche influencer selection</td><td>Those who do: +13.59% engagement, +81.39% views</td></tr>
+  <tr><td>92% of brands are open to AI in influencer marketing</td><td>Perfect timing for an AI platform</td></tr>
+  <tr><td>Micro-influencers charge $100-1,000 per post</td><td>$8 audit = 1.6% of post cost. Obvious deal.</td></tr>
+  <tr><td>60-70% of brands prefer micro/mid-tier influencers</td><td>Nobody has a good tool to find them affordably</td></tr>
+</table>
+
+<hr>
+<div class="d-label">Free Traffic Channels</div>
+<table>
+  <tr><th>Channel</th><th>What to do</th></tr>
+  <tr><td><b>SEO</b></td><td>"influencer search tool free", "micro influencer finder tool", "cheap alternative to hypeauditor", "find influencers by niche free". All low competition, high intent.</td></tr>
+  <tr><td><b>Reddit</b></td><td>r/influencermarketing, r/marketing, r/smallbusiness. Month 1: help people. Then: case study post "I found 200 micro-influencers in fitness in 2 hours. Here's how."</td></tr>
+  <tr><td><b>LinkedIn</b></td><td>Hook: "73% of brands want micro-influencers. Why is it so hard to find them?" Carousel. Voice outreach to agency marketing managers (3x reply rate).</td></tr>
+  <tr><td><b>TikTok / YouTube</b></td><td>Screen-record: "Finding influencers for [niche] — full process in 5 min." Side-by-side vs manual search.</td></tr>
+  <tr><td><b>Product Hunt</b></td><td>"Find niche influencers + verify them. No $299/month subscription." Goal: 500+ email waitlist. Expect 3-8K visits on launch day.</td></tr>
+  <tr><td><b>AppSumo</b></td><td>Lifetime deal. Their audience loves cheap one-time tools. Impulze.ai got first hundreds of clients this way.</td></tr>
+  <tr><td><b>Viral loop</b></td><td>Free first search (5 results). Share with team → they sign up → "look who I found". Better than any ad.</td></tr>
+</table>
+
+<hr>
+<div class="d-label">Pricing & Monetization</div>
+<table>
+  <tr><td>Search by niche (top 5 results)</td><td><b>Free</b></td></tr>
+  <tr><td>Full search (50 influencers with data)</td><td><b>$19-29</b> one-time</td></tr>
+  <tr><td>Pack of 20 checks</td><td><b>$79</b></td></tr>
+  <tr><td>Monthly subscription</td><td><b>$49/month</b></td></tr>
+</table>
+
+<hr>
+<div class="d-label">Year 1 Forecast (Organic Only)</div>
+<div class="d-text">SEO + Reddit + LinkedIn + Product Hunt + AppSumo = 5K-25K signups. 10-15% convert to paid = 500-3,000 paying users. Average check $40/mo = <b>$20K-$120K ARR</b>. No ad spend.</div>
+
+<hr>
+<div class="d-label">3 Key Moves</div>
+<table>
+  <tr><td><b>1. Niche search as main flow</b></td><td>Not "check an influencer" — "find the right ones in your niche." Wider use case.</td></tr>
+  <tr><td><b>2. SEO via competitor alternatives</b></td><td>"HypeAuditor alternative for small business." People already know the problem and saw the price.</td></tr>
+  <tr><td><b>3. Structural moat</b></td><td>HypeAuditor will never offer $8/search — it would kill their $199/month subscription. That's our protection.</td></tr>
+</table>
+
+<hr>
+<div class="d-label">MVP — Tech Stack</div>
+<div class="d-grid">
+  <div class="d-box"><b>Data:</b> Apify Influencer Discovery ($0.01/1K results) + Deep Analyzer (~$0.66/check)</div>
+  <div class="d-box"><b>AI:</b> OpenAI / Claude for readable reports</div>
+  <div class="d-box"><b>Payment:</b> Stripe</div>
+  <div class="d-box"><b>Timeline:</b> 2-4 weeks. <b>Margin:</b> ~84% at $8/report ($6.74 profit each)</div>
+</div>
+
+</div><!-- /sub-influencer -->
+
+</div><!-- /tab2 -->
+
+
+<!-- =========================================================== -->
+<!-- TAB 3: WORK PLAN                                             -->
+<!-- =========================================================== -->
+<div id="tab3" class="tab-content">
+
+<p style="margin-bottom:8px;color:#555">Step-by-step plan for each project. Goal: <b>150 leads via free traffic</b>. All projects follow the same 6 phases. Specific channel details are filled in for deeply researched projects.</p>
+
+<div class="sub-tabs">
+  <button class="sub-btn active" onclick="openSub(event,'wp-review')">ReviewHero AI</button>
+  <button class="sub-btn" onclick="openSub(event,'wp-influencer')">InfluencerAI</button>
+  <button class="sub-btn" onclick="openSub(event,'wp-template')">Template (Other Ideas)</button>
+</div>
+
+<!-- ===== WP: REVIEW HERO ===== -->
+<div id="wp-review" class="sub-content active">
+
+<h2 style="margin-bottom:4px">ReviewHero AI — Work Plan</h2>
+<p style="color:#666;margin-bottom:20px">Goal: 150 leads. Channels: Email, Reddit, Product Hunt, Quora.</p>
+
+<div class="phases">
+
+<div class="phase future">
+  <h3>Phase 1: Preparation <span class="status-badge not-started">Not started</span></h3>
+  <p>Get everything ready before we reach out to anyone.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Write one-liner and 3 key messages (pain → solution → price)<br>
+    &#x2610; Build a simple landing page with waitlist form (email capture)<br>
+    &#x2610; Find 4,000 small businesses in USA with bad reviews and no replies (Google Maps scraping)<br>
+    &#x2610; Write 3 email templates (personalized: mention their specific bad review)<br>
+    &#x2610; Create Reddit account or buy aged one with karma<br>
+    &#x2610; Create Quora profile with bio about "review management"<br>
+    &#x2610; Set up Product Hunt "Coming Soon" page<br>
+    &#x2610; Set up tracking: spreadsheet with columns [channel, date, leads, notes]<br>
+    <br><b>Result we expect:</b> Landing page live. Email list of 4,000 businesses ready. All accounts set up. Tracking ready.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 2: Warm-Up <span class="status-badge not-started">Not started</span></h3>
+  <p>Build presence on Reddit and Quora before promoting anything.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Reddit: find 10+ posts where people complain about bad reviews. Write helpful comments (no links, just advice)<br>
+    &#x2610; Quora: answer 5 questions about "how to handle bad reviews" — give real advice, mention product only at the end<br>
+    &#x2610; Product Hunt: share Coming Soon link in 2-3 relevant communities<br>
+    &#x2610; Test email: send first batch of 200 emails. Check open rate and replies<br>
+    <br><b>Result we expect:</b> Reddit karma built. First 5-10 Quora answers indexed. Email tested, open rate known. First 10-15 leads.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 3: Push — First 80 Leads <span class="status-badge not-started">Not started</span></h3>
+  <p>Full speed on all channels. Send most emails. Post on Reddit.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Send remaining 3,800 emails in batches of 500/day (avoid spam filters)<br>
+    &#x2610; Reddit: post 3-5 helpful posts about review management (with soft mention of product)<br>
+    &#x2610; Quora: answer 10 more questions<br>
+    &#x2610; Track leads daily. Update spreadsheet<br>
+    &#x2610; Reply to every lead within 2 hours<br>
+    <br><b>Result we expect:</b> ~80 leads from email (2% of 4,000). ~15 from Reddit. ~10 from Quora. Total: ~105 leads.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 4: Push to 150 <span class="status-badge not-started">Not started</span></h3>
+  <p>Analyze what works best. Double down. Get the last 45 leads.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Check which channel gave best leads (highest reply rate, most interested)<br>
+    &#x2610; Send follow-up emails to people who opened but didn't reply<br>
+    &#x2610; Reddit: post 2-3 more case-study style posts<br>
+    &#x2610; Product Hunt: activate Coming Soon (expect ~20 signups)<br>
+    &#x2610; Cross-post best Quora answers to LinkedIn or Medium<br>
+    <br><b>Result we expect:</b> 150 total leads reached. All logged in spreadsheet with source and quality notes.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 5: Talk to Leads <span class="status-badge not-started">Not started</span></h3>
+  <p>Learn from the leads. Do they actually want this? Will they pay?</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Contact top 30 leads by email or call. Ask 5 questions:<br>
+    &nbsp;&nbsp;&nbsp;1. How do you handle reviews now?<br>
+    &nbsp;&nbsp;&nbsp;2. How much time do you spend on reviews per week?<br>
+    &nbsp;&nbsp;&nbsp;3. Would you pay $29/month for AI that handles this?<br>
+    &nbsp;&nbsp;&nbsp;4. What would make you say "yes" right now?<br>
+    &nbsp;&nbsp;&nbsp;5. What would make you say "no"?<br>
+    &#x2610; Log all answers<br>
+    <br><b>Result we expect:</b> 10-15 conversations done. Clear picture: do people want this? What price? What features matter most?
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 6: Decision <span class="status-badge not-started">Not started</span></h3>
+  <p>Look at all data. Decide: build MVP, change direction, or stop.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Count total leads, by channel<br>
+    &#x2610; Count how many said "I'd pay for this" (goal: at least 20%)<br>
+    &#x2610; Compare cost of leads (time spent per lead)<br>
+    &#x2610; Write 1-page summary: what worked, what didn't, what surprised<br>
+    &#x2610; <b>Decision: GO (build MVP) / PIVOT (change something) / STOP</b><br>
+    <br><b>Result we expect:</b> Clear go/no-go decision with data behind it. If GO → move to MVP build (1-2 months).
+  </div>
+</div>
+
+</div><!-- phases -->
+</div><!-- /wp-review -->
+
+<!-- ===== WP: INFLUENCER AI ===== -->
+<div id="wp-influencer" class="sub-content">
+
+<h2 style="margin-bottom:4px">InfluencerAI — Work Plan</h2>
+<p style="color:#666;margin-bottom:20px">Goal: 150 leads. Channels: SEO, Reddit, LinkedIn, TikTok/YouTube, Product Hunt, AppSumo, viral loop.</p>
+
+<div class="phases">
+
+<div class="phase future">
+  <h3>Phase 1: Preparation <span class="status-badge not-started">Not started</span></h3>
+  <p>Get everything ready. Landing page, accounts, content plan.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Write one-liner: "Find niche influencers + verify them. $8, not $299/month."<br>
+    &#x2610; Build landing page with free search (top 5 results) + waitlist for full version<br>
+    &#x2610; Set up Product Hunt "Coming Soon" page (goal: 500+ emails before launch)<br>
+    &#x2610; Create SEO pages: "HypeAuditor alternative", "micro influencer finder tool", "cheap influencer search"<br>
+    &#x2610; Create accounts: Reddit (or buy aged), LinkedIn profile/page, TikTok, YouTube<br>
+    &#x2610; Prepare 10 content pieces: 5 Reddit posts/comments, 3 LinkedIn posts, 2 TikTok/YT videos<br>
+    &#x2610; Set up tracking spreadsheet [channel, date, leads, conversion]<br>
+    <br><b>Result we expect:</b> Landing page live with free search hook. PH Coming Soon up. SEO pages published. Content ready to post.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 2: Warm-Up <span class="status-badge not-started">Not started</span></h3>
+  <p>Build presence. Help people. No selling yet.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Reddit: comment on 15+ posts in r/influencermarketing, r/marketing, r/smallbusiness about influencer search problems. Give real advice. Build karma<br>
+    &#x2610; LinkedIn: publish first post with hook ("73% of brands want micro-influencers. Why so hard to find them?")<br>
+    &#x2610; Start LinkedIn voice outreach to 50 marketing managers at small agencies (free first search offer)<br>
+    &#x2610; TikTok/YT: post first screen-record "Finding influencers in [niche] — 5 min process"<br>
+    &#x2610; SEO: submit pages to Google Search Console. Start building 5-10 backlinks<br>
+    <br><b>Result we expect:</b> Reddit karma built. LinkedIn getting reactions. First 20-30 leads from voice outreach + PH Coming Soon.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 3: Push — First 80 Leads <span class="status-badge not-started">Not started</span></h3>
+  <p>Content machine on. Post everywhere. Track daily.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Reddit: post 3-5 case-study posts ("I found 200 micro-influencers in fitness in 2 hours. Here's how")<br>
+    &#x2610; LinkedIn: 2 more posts (carousel: "How to find niche influencers without $300/mo tools"). Continue voice outreach to 100 more managers<br>
+    &#x2610; TikTok/YT: 2-3 more comparison videos (our tool vs manual search, side by side)<br>
+    &#x2610; Product Hunt: collect emails, engage with early supporters<br>
+    &#x2610; Viral loop: enable "share your search results with team" feature on landing page<br>
+    &#x2610; Track leads daily. Reply to every signup within 2 hours<br>
+    <br><b>Result we expect:</b> ~30 from LinkedIn outreach. ~20 from Reddit. ~15 from PH. ~10 from TikTok/YT. ~5 from SEO. Total: ~80 leads.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 4: Push to 150 <span class="status-badge not-started">Not started</span></h3>
+  <p>Double down on what works. Launch on Product Hunt. Reach 150.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Launch on Product Hunt (expect 3-8K visits, 200-800 signups)<br>
+    &#x2610; Apply to AppSumo (lifetime deal for early adopters)<br>
+    &#x2610; Reddit: 2 more posts with real data and results<br>
+    &#x2610; LinkedIn: reach out to 50 more agency contacts<br>
+    &#x2610; Write blog post: "Why I stopped paying $299/month for HypeAuditor" (SEO bait)<br>
+    &#x2610; Ask existing leads to share with colleagues (viral loop)<br>
+    <br><b>Result we expect:</b> 150+ leads total. Product Hunt alone could bring 50+. All leads logged.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 5: Talk to Leads <span class="status-badge not-started">Not started</span></h3>
+  <p>Learn from leads. Validate willingness to pay.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Contact top 30 leads. Ask:<br>
+    &nbsp;&nbsp;&nbsp;1. How do you find influencers now?<br>
+    &nbsp;&nbsp;&nbsp;2. How much time does it take?<br>
+    &nbsp;&nbsp;&nbsp;3. Have you ever paid for a tool? Which one? Why did you stop?<br>
+    &nbsp;&nbsp;&nbsp;4. Would you pay $8 per search? $49/month?<br>
+    &nbsp;&nbsp;&nbsp;5. What data do you need most in a report?<br>
+    &#x2610; Log all answers<br>
+    <br><b>Result we expect:</b> 10-15 real conversations. Clear signal: pay or not pay. What features matter. What price point works.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 6: Decision <span class="status-badge not-started">Not started</span></h3>
+  <p>All data in. Decide.</p>
+  <div class="result">
+    <b>Tasks:</b><br>
+    &#x2610; Count leads by channel. Which channel was best?<br>
+    &#x2610; Count "would pay" answers (goal: 20%+)<br>
+    &#x2610; Calculate: if conversion holds, what's projected MRR?<br>
+    &#x2610; Write 1-page summary<br>
+    &#x2610; <b>Decision: GO → build MVP in 2-4 weeks (Apify + AI + Stripe) / PIVOT / STOP</b><br>
+    <br><b>Result we expect:</b> Go/no-go with real data. If GO: MVP in 2-4 weeks, margin ~84%, first revenue within a month.
+  </div>
+</div>
+
+</div><!-- phases -->
+</div><!-- /wp-influencer -->
+
+<!-- ===== WP: TEMPLATE ===== -->
+<div id="wp-template" class="sub-content">
+
+<h2 style="margin-bottom:4px">Work Plan Template — For Any Idea</h2>
+<p style="color:#666;margin-bottom:20px">Use this template when we pick another idea to test. Same 6 phases. Fill in the blanks.</p>
+
+<div class="phases">
+
+<div class="phase future">
+  <h3>Phase 1: Preparation</h3>
+  <p>Get everything ready before reaching out.</p>
+  <div class="result">
+    &#x2610; Write one-liner (what is it, who is it for, why it's better)<br>
+    &#x2610; Build landing page with waitlist form<br>
+    &#x2610; Choose 3-4 free traffic channels (from research)<br>
+    &#x2610; Create/buy accounts on those channels<br>
+    &#x2610; Write content templates (emails, posts, answers)<br>
+    &#x2610; Set up lead tracking spreadsheet<br>
+    <br><b>Result:</b> Landing page live. Accounts ready. Content drafted. Tracking set up.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 2: Warm-Up (Week 1)</h3>
+  <p>Build presence. Help people. No selling.</p>
+  <div class="result">
+    &#x2610; Comment and help on Reddit / Quora / forums (no links)<br>
+    &#x2610; Post first content on LinkedIn / TikTok / blog<br>
+    &#x2610; Test first 200 cold emails (if using email channel)<br>
+    &#x2610; Set up Product Hunt Coming Soon<br>
+    <br><b>Result:</b> Presence built. First 10-20 leads.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 3: Push — First 80 Leads (Weeks 2-3)</h3>
+  <p>Full speed. Post, email, engage.</p>
+  <div class="result">
+    &#x2610; Send all cold emails in batches<br>
+    &#x2610; Post 3-5 helpful posts on Reddit/forums<br>
+    &#x2610; Continue content on LinkedIn/TikTok<br>
+    &#x2610; Track leads daily<br>
+    &#x2610; Reply to every lead fast<br>
+    <br><b>Result:</b> ~80 leads collected. Best channel identified.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 4: Push to 150 (Weeks 4-5)</h3>
+  <p>Double down on what works. Get the last 70 leads.</p>
+  <div class="result">
+    &#x2610; 2x effort on best channel<br>
+    &#x2610; Follow-up emails to openers who didn't reply<br>
+    &#x2610; Launch Product Hunt / AppSumo<br>
+    &#x2610; Ask leads to share with colleagues<br>
+    <br><b>Result:</b> 150 leads total.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 5: Talk to Leads</h3>
+  <p>Call or email top 30 leads. Ask 5 key questions.</p>
+  <div class="result">
+    &#x2610; How do you solve this problem now?<br>
+    &#x2610; How much time/money does it cost you?<br>
+    &#x2610; Would you pay $X for this?<br>
+    &#x2610; What would make you say yes right now?<br>
+    &#x2610; What would make you say no?<br>
+    <br><b>Result:</b> 10-15 real conversations. Clear understanding of demand.
+  </div>
+</div>
+
+<div class="phase future">
+  <h3>Phase 6: Decision</h3>
+  <p>Look at all data. Decide.</p>
+  <div class="result">
+    &#x2610; Count leads by channel<br>
+    &#x2610; Count "would pay" (goal: 20%+)<br>
+    &#x2610; Write 1-page summary<br>
+    &#x2610; <b>GO / PIVOT / STOP</b><br>
+    <br><b>Result:</b> Clear decision backed by data.
+  </div>
+</div>
+
+</div><!-- phases -->
+
+<div class="note" style="margin-top:24px">
+  <b>How to use this template:</b> Copy this plan for any idea from Tab 1. Fill in: your specific channels, email targets, Reddit subreddits, content ideas, and pricing. Then follow the 6 phases.
+</div>
+
+</div><!-- /wp-template -->
+
+</div><!-- /tab3 -->
+
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+function openTab(e, id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  e.currentTarget.classList.add('active');
+}
+function openSub(e, id) {
+  const parent = e.currentTarget.closest('.tab-content');
+  parent.querySelectorAll('.sub-content').forEach(s => s.classList.remove('active'));
+  parent.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+  parent.querySelector('#'+id).classList.add('active');
+  e.currentTarget.classList.add('active');
+}
+function toggleAcc(el) {
+  const body = el.querySelector('.acc-body');
+  const isOpen = el.classList.contains('open');
+  if (isOpen) {
+    body.style.maxHeight = '0';
+    el.classList.remove('open');
+  } else {
+    body.style.maxHeight = body.scrollHeight + 'px';
+    el.classList.add('open');
+  }
+}
+</script>
+
+</body>
+</html>
